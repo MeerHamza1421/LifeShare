@@ -1,15 +1,15 @@
+import React, { useState } from 'react';
 import { InputAdornment } from '@material-ui/core';
 import { Visibility, VisibilityOff } from '@material-ui/icons';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LockIcon from '@mui/icons-material/Lock';
 import { Box, Button, Container, IconButton, MenuItem, Tab, Tabs, TextField } from '@mui/material';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { addDoc, collection, GeoPoint, doc } from 'firebase/firestore';
-import React, { useState } from 'react';
+import { addDoc, collection, GeoPoint } from 'firebase/firestore';
 import { auth, firestore } from '../../Firebase';
+import { get } from 'axios';
+import { Link } from 'react-router-dom';
 import './RegisterPage.css';
-
-
 
 const ResponsiveAppBar = () => {
   const bloodType = [
@@ -27,12 +27,10 @@ const ResponsiveAppBar = () => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [bloodGroup, setBloodGroup] = React.useState('A+');
-  const [value, setValue] = React.useState(`Aplus`);
+  const [value, setValue] = React.useState('A+');
   const [tabValue, setTabValue] = React.useState('one');
   const [blood, showBlood] = React.useState('true');
-  const [latitude, setLatitude] = useState();
-  const [longitude, setLongitude] = useState();
-  const [isLocationGet, setIsLocationGet] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('0');
 
   const handleChangeTab = (e, newValue) => {
     if (newValue === 'two' || newValue === 'three') {
@@ -44,45 +42,53 @@ const ResponsiveAppBar = () => {
     setTabValue(newValue);
   };
 
-  // const handleChange = (event, newValue) => {
-  //   setValue(newValue);
-  //   setBloodGroup(event.target.value);
-  // };
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    setBloodGroup(event.target.value);
+  };
 
-  // const getLocation = () => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(showPosition);
-  //   }
-  //   else {
-  //     console.log("Geolocation is not supported by this browser.");
-  //   }
-  // }
+  const getLocation = async () => {
+    const location = await get('https://api.ipgeolocation.io/ipgeo?apiKey=b80e6e3d2bd7455db18973734658c0d6');
 
-  const showPosition = (position) => {
-    setLatitude(position.coords.latitude);
-    setLongitude(position.coords.longitude);
-    console.log(latitude, longitude);
-    if (latitude && longitude) {
-      setIsLocationGet(true);
+    if (location.data.longitude && location.data.latitude) {
+      return {
+        status: true,
+        latitude: location.data.latitude,
+        longitude: location.data.longitude
+      };
     }
   }
 
-
   const registerUser = async (e) => {
     e.preventDefault();
-    if (isLocationGet) {
-      const user = await createUserWithEmailAndPassword(email, password);
-      const userRef = collection(firestore, 'Users');
-      const userDoc = doc(userRef, user.user.uid);
-      const userData = {
-        username,
-        email,
-        bloodType: value,
-        location: new GeoPoint(latitude, longitude),
-      };
-      await addDoc(userDoc, userData);
-      await updateProfile({ displayName: username });
+    const { status, latitude, longitude } = await getLocation();
+    const userRef = collection(firestore, 'Users');
+    if (status) {
+      await createUserWithEmailAndPassword(auth, email, password).then(
+        async (createUser) => {
+          await updateProfile(createUser.user,
+            {
+              displayName: username
+            }
+          ).then(
+            await addDoc(userRef,
+              {
+                username: username,
+                location: new GeoPoint(latitude, longitude),
+                phonenumber: phoneNumber,
+                bloodtype: bloodGroup,
+              }
+            )
+          )
+        }
+      ).catch(
+        (err) => {
+          window.alert(err);
+        }
+      )
       auth.signOut();
+      window.alert('You have been Registered Successful');
+      document.getElementById('pageLink').click();
     }
     else {
       alert('Please get your location');
@@ -184,6 +190,7 @@ const ResponsiveAppBar = () => {
                 className='username'
                 id="outlined-number-6"
                 label="phone-Number"
+                onChange={e => setPhoneNumber(e.target.value)}
                 type="text" />
             </div>
             {blood && <div className='field'>
@@ -204,10 +211,10 @@ const ResponsiveAppBar = () => {
               </TextField>
             </div>}
             {!blood && <br />}
-            <Button variant="contained" className='btn-1' onClick={getLocation}>Store Current Location</Button>
             <div className='btn'>
               <Button variant="contained" type="submit" className='btn-1' >Register</Button>
             </div>
+            <Link id="pageLink" to="/login" ></Link>
           </form>
         </Container>
       </div>

@@ -1,15 +1,22 @@
-import {LocalHospitalRounded} from "@material-ui/icons";
-import {AssignmentRounded, BloodtypeRounded, BookRounded, EventRounded, LocationOnRounded, MedicationRounded, MilitaryTechRounded, PersonSearchRounded, VolunteerActivismRounded} from "@mui/icons-material";
-import {collection, onSnapshot} from "firebase/firestore";
-import React, {useEffect, useState} from "react";
-import {auth, firestore} from "../../Firebase";
+import { LocalHospitalRounded } from "@material-ui/icons";
+
+import {
+    AssignmentRounded, BloodtypeRounded, BookRounded,
+    EventRounded, LocationOnRounded, MedicationRounded,
+    MilitaryTechRounded, PersonSearchRounded, VolunteerActivismRounded
+}
+    from "@mui/icons-material";
+import { collection, onSnapshot } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { auth, firestore } from "../../Firebase";
 import './Dashboard.css';
 import logo from './Icons/bd1.png';
 import bg from './Icons/bd4.png';
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-    const [userInfo, setUserInfo] = useState({bloodGroup: null, donations: null, bloodReqest: null});
-    
+    const [userInfo, setUserInfo] = useState({ bloodGroup: null, donations: null, bloodReqest: null });
+
     useEffect(
         () => {
             onSnapshot(collection(firestore, "Users"),
@@ -19,7 +26,7 @@ const Dashboard = () => {
                             if (user.data().username === auth.currentUser.displayName) {
                                 setUserInfo(
                                     {
-                                        bloodGroup: user.data().bloodGroup,
+                                        bloodGroup: user.data().bloodtype,
                                         donations: user.data().donations,
                                         bloodRequests: user.data().bloodRequests
                                     }
@@ -31,15 +38,15 @@ const Dashboard = () => {
             )
         }, []
     )
-    
-    return(
+
+    return (
         <div className="dashboard-page">
             <div className='bg-logo'>
                 <img src={bg} height="150px" alt='logo' ></img>
             </div>
             <div className="dashboard-content">
                 <div className="greeting-text">
-                   <div className='logo'>
+                    <div className='logo'>
                         <img src={logo} height="30px" alt='logo' ></img>
                     </div>
                     <p>Welcome, {auth.currentUser.displayName}</p>
@@ -47,93 +54,93 @@ const Dashboard = () => {
                 <div className="info-box-parent">
                     <div className="info-box-container">
                         <div className="dashboard-info-box">
-                           <div className='info-box-content'>
+                            <div className='info-box-content'>
                                 <div>
-                                <BloodtypeRounded style={{fontSize:'30px'}}/>
+                                    <BloodtypeRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Blood Group: {userInfo.bloodGroup}
-                            </div>            
+                            </div>
                         </div>
                         <div className="dashboard-info-box">
-                           <div className='info-box-content'>
+                            <div className='info-box-content'>
                                 <div>
-                                <VolunteerActivismRounded style={{fontSize:'30px'}}/>
+                                    <VolunteerActivismRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Donations: {userInfo.donations}
-                            </div>     
+                            </div>
                         </div>
                         <div className="dashboard-info-box">
-                           <div className='info-box-content'>
+                            <div className='info-box-content'>
                                 <div>
-                                <MedicationRounded style={{fontSize:'30px'}}/>
+                                    <MedicationRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Blood Requests: {userInfo.bloodRequests}
-                            </div>        
+                            </div>
                         </div>
                         <div className="dashboard-info-box">
-                           <div className='info-box-content'>
+                            <div className='info-box-content'>
                                 <div>
-                                <MilitaryTechRounded style={{fontSize:'30px'}}/>
+                                    <MilitaryTechRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Badges: 2
-                            </div>            
+                            </div>
                         </div>
                     </div>
                 </div>
-               <div className="actions-parent">
+                <div className="actions-parent">
                     <div className="actions-container">
-                        <button className="action-btn" onClick={() => window.open("/finddonor", "__self")}>
+                        <Link className="action-btn" to="/finddonor" >
                             <div className='dashboard-button-content'>
                                 <div>
-                                <PersonSearchRounded style={{fontSize:'30px'}}/>
+                                    <PersonSearchRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Find Donor
                             </div>
-                        </button>
-                        <button className="action-btn" onClick={() => window.open("/locationservice", "__self")}>
+                        </Link>
+                        <Link className="action-btn" to="/locationservice">
                             <div className='dashboard-button-content'>
                                 <div>
-                                <LocationOnRounded style={{fontSize:'30px'}}/>
+                                    <LocationOnRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Nearby Donors
                             </div>
-                        </button>
-                        <button className="action-btn" onClick={() => window.open("/locationservice", "__self")}>
-                           <div className='dashboard-button-content'>
+                        </Link>
+                        <Link to="/locationservice" className="action-btn">
+                            <div className='dashboard-button-content'>
                                 <div>
-                                <LocalHospitalRounded style={{fontSize:'30px'}}/>
+                                    <LocalHospitalRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Nearby Hospitals
                             </div>
-                        </button>
+                        </Link>
                         <button className="action-btn">
-                           <div className='dashboard-button-content'>
+                            <div className='dashboard-button-content'>
                                 <div>
-                                <AssignmentRounded style={{fontSize:'30px'}}/>
+                                    <AssignmentRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Appointments
                             </div>
                         </button>
-                        <button className="action-btn" onClick={() => window.open("/donationrecord", "__self")}>
-                           <div className='dashboard-button-content'>
+                        <Link to="/donationrecord" className="action-btn" >
+                            <div className='dashboard-button-content'>
                                 <div>
-                                <BookRounded style={{fontSize:'30px'}}/>
+                                    <BookRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Donation Records
                             </div>
 
-                        </button>
+                        </Link>
                         <button className="action-btn">
-                           <div className='dashboard-button-content'>
+                            <div className='dashboard-button-content'>
                                 <div>
-                                <EventRounded style={{fontSize:'30px'}}/>
+                                    <EventRounded style={{ fontSize: '30px' }} />
                                 </div>
                                 Events
                             </div>
                         </button>
                     </div>
 
-               </div>
+                </div>
 
             </div>
             <div className='bg-logo'>

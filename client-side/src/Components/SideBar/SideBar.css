@@ -1,3 +1,8 @@
 .sidebar {
     position: absolute;
 }
+
+a {
+    text-decoration: none;
+    color          : #212121;
+}
